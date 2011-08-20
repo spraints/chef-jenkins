@@ -13,6 +13,11 @@
 <% end -%>
 <VirtualHost *:80>
   ServerName        <%= @host_name %>
+<% if @ssl %>
+  Redirect permanent / https://<%= @host_name %>/
+</VirtualHost>
+<VirtualHost *:443>
+<% end %>
   ProxyRequests     Off
 <% @host_aliases.each do |a| -%>
   ServerAlias       <%= a %>
@@ -29,4 +34,14 @@
   ProxyPreserveHost on
   ProxyPass         /  http://localhost:<%= node[:jenkins][:server][:port] %>/
   ProxyPassReverse  /  http://localhost:<%= node[:jenkins][:server][:port] %>/
+
+<% if @ssl %>
+  Header edit Location ^http://<%= @host_name %>/ https://<%= @host_name %>/
+
+  SSLEngine On
+  SSLCertificateFile    /etc/apache2/ssl/jenkins.crt
+  SSLCertificateKeyFile /etc/apache2/ssl/jenkins.key
+  SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
+  #CustomLog logs/ssl_request_log "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+<% end %>
 </VirtualHost>

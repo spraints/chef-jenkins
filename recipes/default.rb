@@ -252,4 +252,6 @@ when "nginx"
   include_recipe "jenkins::proxy_nginx"
 when "apache2"
   include_recipe "jenkins::proxy_apache2"
+when 'apache2-ssl'
+  include_recipe "jenkins::proxy_apache2_ssl"
 end
